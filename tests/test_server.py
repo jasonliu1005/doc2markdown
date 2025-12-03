@@ -12,7 +12,7 @@ from pathlib import Path
 # Add src directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from server import convert_to_markdown, list_tools
+from doc2markdown.server import convert_to_markdown, list_tools
 
 
 async def test_list_tools():

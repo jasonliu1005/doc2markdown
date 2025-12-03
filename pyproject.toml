@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doc2markdown-mcp"
+version = "0.1.0"
+description = "MCP server for converting documents to Markdown format"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Jia Liu" }
+]
+keywords = ["mcp", "markdown", "document", "conversion", "docx", "pdf"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "mcp>=1.0.0",
+    "markitdown[all]>=0.1.0",
+]
+
+[project.scripts]
+doc2markdown = "doc2markdown.server:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/doc2markdown"
+Repository = "https://github.com/yourusername/doc2markdown"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/doc2markdown"]
+

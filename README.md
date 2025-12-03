@@ -1,6 +1,6 @@
 # doc2markdown MCP Server
 
-An MCP (Model Context Protocol) server that converts various document formats to Markdown. Currently supports DOC/DOCX files using the MarkItDown library.
+An MCP (Model Context Protocol) server that converts various document formats to Markdown. Supports DOC/DOCX, PDF, PPTX, and more using the MarkItDown library.
 
 ## Features
 
@@ -10,47 +10,33 @@ An MCP (Model Context Protocol) server that converts various document formats to
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.10 or higher
-- pip
-
-### Setup
-
-1. Clone or navigate to the project directory:
+### Option 1: Install from PyPI (recommended)
 
 ```bash
+pip install doc2markdown-mcp
+```
+
+### Option 2: Install from GitHub
+
+```bash
+pip install git+https://github.com/yourusername/doc2markdown.git
+```
+
+### Option 3: Install from source
+
+```bash
+git clone https://github.com/yourusername/doc2markdown.git
 cd doc2markdown
+pip install .
 ```
 
-2. Create a virtual environment (recommended):
+## Configuration
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On macOS/Linux
-# or
-.venv\Scripts\activate     # On Windows
-```
+After installation, configure your MCP client to use the server.
 
-3. Install dependencies:
+### Claude Desktop
 
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-
-### Running the Server
-
-The server runs over stdio and is designed to be used with MCP-compatible clients like Claude Desktop.
-
-```bash
-python src/server.py
-```
-
-### Claude Desktop Configuration
-
-Add the following to your Claude Desktop configuration file:
+Add to your Claude Desktop configuration file:
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -59,27 +45,43 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "doc2markdown": {
-      "command": "python",
-      "args": ["/absolute/path/to/doc2markdown/src/server.py"],
-      "env": {}
+      "command": "doc2markdown"
     }
   }
 }
 ```
 
-Or if using a virtual environment:
+### Cursor
+
+Add to `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "doc2markdown": {
-      "command": "/absolute/path/to/doc2markdown/.venv/bin/python",
-      "args": ["/absolute/path/to/doc2markdown/src/server.py"],
-      "env": {}
+      "command": "doc2markdown"
     }
   }
 }
 ```
+
+**Note**: If you installed in a virtual environment, use the full path:
+
+```json
+{
+  "mcpServers": {
+    "doc2markdown": {
+      "command": "/path/to/your/venv/bin/doc2markdown"
+    }
+  }
+}
+```
+
+## Usage
+
+Once configured, you can use the tool in your MCP-compatible client:
+
+> "Convert the document at /path/to/document.docx to markdown"
 
 ### Available Tools
 
@@ -89,9 +91,6 @@ Converts a document file to Markdown format.
 
 **Parameters:**
 - `file_path` (string, required): The absolute or relative path to the document file to convert.
-
-**Example usage in Claude:**
-> "Convert the document at /path/to/document.docx to markdown"
 
 ## Supported Formats
 
@@ -113,22 +112,32 @@ Converts a document file to Markdown format.
 ```
 doc2markdown/
 ├── src/
-│   └── server.py      # Main MCP server implementation
+│   └── doc2markdown/
+│       ├── __init__.py
+│       └── server.py      # Main MCP server implementation
 ├── tests/
-│   └── test_server.py # Test script
-├── requirements.txt   # Python dependencies
-└── README.md          # This file
+│   └── test_server.py     # Test script
+├── pyproject.toml         # Package configuration
+├── requirements.txt       # Development dependencies
+└── README.md
 ```
 
-### Adding New Format Support
+### Development Setup
 
-The MarkItDown library handles most common document formats. To add specialized handling for a new format:
+```bash
+git clone https://github.com/yourusername/doc2markdown.git
+cd doc2markdown
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
 
-1. Check if MarkItDown supports the format
-2. Add the extension to the `supported_extensions` set in `src/server.py`
-3. Add any format-specific error handling if needed
+### Running Tests
+
+```bash
+python tests/test_server.py
+```
 
 ## License
 
 MIT License
-

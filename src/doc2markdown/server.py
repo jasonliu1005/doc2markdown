@@ -6,7 +6,7 @@ This server provides tools to convert various file formats (doc, docx, etc.)
 to Markdown using the MarkItDown library.
 """
 
-import os
+import asyncio
 from pathlib import Path
 
 from mcp.server import Server
@@ -124,7 +124,7 @@ async def convert_to_markdown(file_path: str) -> list[TextContent]:
         )]
 
 
-async def main():
+async def run_server():
     """Run the MCP server."""
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
@@ -134,7 +134,11 @@ async def main():
         )
 
 
+def main():
+    """Entry point for the CLI command."""
+    asyncio.run(run_server())
+
+
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
 
