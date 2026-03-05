@@ -2,7 +2,7 @@
 DeepSeek-OCR-2 based conversion of image PDFs to Markdown.
 
 Provides is_image_pdf() to detect image-based PDFs and pdf_to_markdown_with_ocr()
-to convert them to markdown. Optional dependency: torch, transformers, pdf2image.
+to convert them to markdown. Optional dependency: torch, transformers, pymupdf.
 """
 
 from __future__ import annotations
@@ -74,15 +74,20 @@ def sanitize_markdown(md: str) -> str:
 
 
 def _render_pdf_to_images(pdf_path: str, out_dir: Path, dpi: int = 220) -> list[Path]:
-    from pdf2image import convert_from_path
+    import fitz  # PyMuPDF – no system deps (e.g. Poppler) required
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    pages = convert_from_path(pdf_path, dpi=dpi)
     image_paths = []
-    for i, img in enumerate(pages, start=1):
-        p = out_dir / f"page_{i:04d}.png"
-        img.save(p, "PNG")
-        image_paths.append(p)
+    doc = fitz.open(pdf_path)
+    try:
+        for i in range(len(doc)):
+            page = doc[i]
+            pix = page.get_pixmap(dpi=dpi)
+            p = out_dir / f"page_{i + 1:04d}.png"
+            pix.save(str(p))
+            image_paths.append(p)
+    finally:
+        doc.close()
     return image_paths
 
 
@@ -220,7 +225,7 @@ def pdf_to_markdown_with_ocr(
         Markdown string.
 
     Raises:
-        ImportError: If torch, transformers, or pdf2image are not installed.
+        ImportError: If torch, transformers, or pymupdf are not installed.
         RuntimeError: On conversion errors.
     """
     from tqdm import tqdm

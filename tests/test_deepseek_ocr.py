@@ -159,8 +159,7 @@ class TestActualModelBasedConversion:
             from transformers import AutoModel  # noqa: F401
         except ImportError as e:
             pytest.skip(f"OCR dependencies not available: {e}")
-        pdf2image =         pytest.importorskip("pdf2image")
-        from pdf2image.exceptions import PDFInfoNotInstalledError
+        pytest.importorskip("fitz")  # PyMuPDF for PDF → images
 
         # Prefer CUDA, then MPS (Apple Silicon), then CPU
         if torch.cuda.is_available():
@@ -175,11 +174,6 @@ class TestActualModelBasedConversion:
             err_str = str(e).lower()
             if "flash" in err_str or "attention" in err_str:
                 pytest.skip(f"Model requires GPU or different attention backend: {e}")
-            if isinstance(e, PDFInfoNotInstalledError) or "poppler" in err_str or "pdfinfo" in err_str:
-                pytest.skip(
-                    "Poppler is required for pdf2image (PDF → images). "
-                    "Install: macOS: brew install poppler | Linux: apt install poppler-utils | Windows: conda install poppler"
-                )
             if isinstance(e, ImportError) and (
                 "addict" in err_str or "matplotlib" in err_str or "torchvision" in err_str or "einops" in err_str
                 or "were not found in your environment" in err_str

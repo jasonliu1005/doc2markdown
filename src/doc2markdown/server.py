@@ -111,7 +111,7 @@ def _convert_to_markdown_sync(file_path: str) -> str:
         except ImportError as e:
             return (
                 f"Error: Model-based conversion is enabled but OCR dependencies are not installed "
-                f"(torch, transformers, pdf2image, pypdf). Install with: pip install torch transformers pdf2image pypdf. "
+                f"(torch, transformers, pymupdf, pypdf). Install with: pip install torch transformers pymupdf pypdf. "
                 f"Original error: {e}"
             )
         if is_image_pdf(path):

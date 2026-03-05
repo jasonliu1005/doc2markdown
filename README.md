@@ -10,12 +10,6 @@ An MCP (Model Context Protocol) server that converts various document formats to
 
 ## Installation
 
-**Model-based conversion (image PDFs)** requires **Poppler** on your system so PDFs can be rendered to images. Install it before using the OCR feature:
-
-- **macOS:** `brew install poppler`
-- **Linux (Debian/Ubuntu):** `sudo apt install poppler-utils`
-- **Windows:** `conda install -c conda-forge poppler` or install [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases/) and add it to PATH
-
 ### Option 1: Install from PyPI (recommended)
 
 ```bash
