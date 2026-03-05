@@ -1,11 +1,22 @@
+# Base dependencies (MarkItDown conversion only)
 fastmcp>=2.0.0
 markitdown[all]>=0.1.0
 pypdf>=4.0.0
+
+# DeepSeek-OCR-2 (model-based image PDF conversion). Install as extra:
+#   pip install doc2markdown-mcp[deepseek-ocr2]
+# or for local dev: pip install -e ".[deepseek-ocr2]"
+# For CUDA 11.8 (optional): install PyTorch first from official index, then the rest.
 torch>=2.0.0
 torchvision>=0.15.0
+torchaudio>=2.0.0
 tqdm>=4.0.0
 pymupdf>=1.24.0
-transformers>=4.30.0
+transformers==4.46.3
+tokenizers==0.20.3
 addict>=2.4.0
+easydict>=1.10
 matplotlib>=3.7.0
 einops>=0.7.0
+Pillow>=9.0.0
+img2pdf>=0.5.0

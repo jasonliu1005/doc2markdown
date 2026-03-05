@@ -176,11 +176,12 @@ class TestActualModelBasedConversion:
                 pytest.skip(f"Model requires GPU or different attention backend: {e}")
             if isinstance(e, ImportError) and (
                 "addict" in err_str or "matplotlib" in err_str or "torchvision" in err_str or "einops" in err_str
+                or "easydict" in err_str or "pillow" in err_str or "img2pdf" in err_str or "tokenizers" in err_str
                 or "were not found in your environment" in err_str
             ):
                 pytest.skip(
-                    "DeepSeek-OCR-2 model requires extra deps (e.g. addict, matplotlib, torchvision, einops). "
-                    "Run: pip install addict matplotlib torchvision einops"
+                    "DeepSeek-OCR-2 model requires the deepseek-ocr2 extra. "
+                    "Run: pip install doc2markdown-mcp[deepseek-ocr2]"
                 )
             raise
 

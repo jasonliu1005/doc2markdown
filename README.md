@@ -18,8 +18,16 @@ pip install doc2markdown-mcp
 
 ### Option 2: Install from GitHub
 
+Base only (MarkItDown conversion; no DeepSeek-OCR-2):
+
 ```bash
 pip install git+https://github.com/yourusername/doc2markdown.git
+```
+
+With DeepSeek-OCR-2 (model-based image PDF conversion):
+
+```bash
+pip install "git+https://github.com/yourusername/doc2markdown.git#egg=doc2markdown-mcp[deepseek-ocr2]"
 ```
 
 ### Option 3: Install from source
@@ -29,6 +37,39 @@ git clone https://github.com/yourusername/doc2markdown.git
 cd doc2markdown
 pip install .
 ```
+
+### Model-based conversion (DeepSeek-OCR-2)
+
+For image-based PDF conversion with the DeepSeek-OCR-2 model, install the **deepseek-ocr2** extra:
+
+```bash
+pip install doc2markdown-mcp[deepseek-ocr2]
+```
+
+Or from source:
+
+```bash
+pip install -e ".[deepseek-ocr2]"
+```
+
+This pulls in PyTorch, Transformers, PyMuPDF, tokenizers, and the model’s other dependencies. Without this extra, PDFs are converted with MarkItDown only (no local OCR model).
+
+**CUDA (optional)**  
+For GPU inference with CUDA 11.8, install PyTorch from the official index first, then the extra:
+
+```bash
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu118
+pip install doc2markdown-mcp[deepseek-ocr2]
+```
+
+**Flash Attention (optional, Linux/CUDA only)**  
+Faster inference when Flash Attention is available. Install after the above (requires build tools):
+
+```bash
+pip install flash-attn==2.7.3 --no-build-isolation
+```
+
+If `flash-attn` is not installed or fails to load, the code falls back to eager attention. This project uses **transformers** for the model (not vLLM), so the vLLM wheel is not required.
 
 ## Configuration
 
