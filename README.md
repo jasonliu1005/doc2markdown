@@ -112,19 +112,20 @@ Converts a document file to Markdown format.
 **Parameters:**
 - `file_path` (string, required): The absolute or relative path to the document file to convert.
 
-## Debug script (document → Markdown to stdout)
+## CLI tool (document → Markdown to stdout)
 
-To convert any supported document to Markdown and print the result to stdout (e.g. for debugging or piping):
+After installing the package, the **`doc2markdown-convert`** command converts a document to Markdown and prints to stdout:
 
 ```bash
-# From repo root (use venv Python so dependencies are available)
-python scripts/debug_convert.py path/to/document.pdf
+doc2markdown-convert path/to/document.pdf
 
 # Use OCR for image-based PDFs
-python scripts/debug_convert.py path/to/scanned.pdf --model-based-conversion
+doc2markdown-convert path/to/scanned.pdf --model-based-conversion
 ```
 
-Supports the same formats as the MCP tool. Set `DOC2MARKDOWN_MODEL_BASED_CONVERSION=true` to enable model-based conversion for image PDFs without the flag.
+Supports the same formats as the MCP tool. Set `DOC2MARKDOWN_MODEL_BASED_CONVERSION=true` to enable model-based conversion without the flag.
+
+**From repo (without installing):** `python scripts/debug_convert.py <path> [--model-based-conversion]`
 
 ## Supported Formats
 

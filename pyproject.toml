@@ -38,6 +38,7 @@ dependencies = [
 
 [project.scripts]
 doc2markdown = "doc2markdown.server:main"
+doc2markdown-convert = "doc2markdown.convert_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/doc2markdown"
