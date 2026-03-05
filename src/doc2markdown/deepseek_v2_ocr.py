@@ -110,7 +110,7 @@ def _load_model(device: str):
 
     _stub_llama_flash_attention_if_missing()
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True, use_fast=False)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
 
     # Prefer flash_attention_2 on CUDA when available; fall back to eager on failure
     # (e.g. LlamaFlashAttention2 missing in transformers 4.51+).
