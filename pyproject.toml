@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "doc2markdown-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "MCP server for converting documents to Markdown format"
 readme = "README.md"
 license = "MIT"
@@ -23,8 +23,17 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "mcp>=1.0.0",
+    "fastmcp>=2.0.0",
     "markitdown[all]>=0.1.0",
+    "pypdf>=4.0.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "tqdm>=4.0.0",
+    "pdf2image>=1.16.0",
+    "transformers>=4.30.0",
+    "addict>=2.4.0",
+    "matplotlib>=3.7.0",
+    "einops>=0.7.0",
 ]
 
 [project.scripts]
@@ -36,4 +45,16 @@ Repository = "https://github.com/yourusername/doc2markdown"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/doc2markdown"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+extraPaths = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that run real model-based OCR on fixture PDFs (deselect with '-m \"not integration\"')",
+]
 

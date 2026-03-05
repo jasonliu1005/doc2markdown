@@ -4,17 +4,21 @@ Test script for the doc2markdown MCP server.
 """
 
 import asyncio
-import tempfile
 import os
 import sys
+import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 # Add src directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from doc2markdown.server import convert_to_markdown, list_tools
+import pytest
+
+from doc2markdown.server import convert_to_markdown_async as convert_to_markdown, list_tools
 
 
+@pytest.mark.asyncio
 async def test_list_tools():
     """Test that tools are listed correctly."""
     print("Testing list_tools...")
@@ -25,6 +29,7 @@ async def test_list_tools():
     return True
 
 
+@pytest.mark.asyncio
 async def test_convert_text_file():
     """Test converting a simple text file."""
     print("\nTesting text file conversion...")
@@ -47,6 +52,7 @@ async def test_convert_text_file():
     return True
 
 
+@pytest.mark.asyncio
 async def test_file_not_found():
     """Test handling of non-existent file."""
     print("\nTesting file not found handling...")
@@ -58,14 +64,116 @@ async def test_file_not_found():
     return True
 
 
+@pytest.mark.asyncio
 async def test_empty_path():
     """Test handling of empty file path."""
     print("\nTesting empty path handling...")
-    
+
     result = await convert_to_markdown("")
     assert len(result) == 1
     assert "Error" in result[0].text
     print("✓ Empty path handling passed")
+    return True
+
+
+@pytest.mark.asyncio
+async def test_pdf_with_model_based_conversion_image_pdf():
+    """When model_based_conversion is on and PDF is image-based, use OCR path (mocked)."""
+    print("\nTesting PDF with model-based conversion (image PDF, mocked OCR)...")
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+        f.write(b"%PDF-1.4 dummy\n")
+        pdf_path = f.name
+    try:
+        import doc2markdown.server as server_module
+        with (
+            patch.object(server_module, "MODEL_BASED_CONVERSION", True),
+            patch(
+                "doc2markdown.deepseek_v2_ocr.is_image_pdf",
+                return_value=True,
+            ),
+            patch(
+                "doc2markdown.deepseek_v2_ocr.pdf_to_markdown_with_ocr",
+                return_value="# OCR Result\n\nContent from DeepSeek-OCR.",
+            ),
+        ):
+            result = await convert_to_markdown(pdf_path)
+        assert len(result) == 1
+        assert "OCR Result" in result[0].text
+        assert "DeepSeek-OCR" in result[0].text
+        print("✓ Model-based conversion (image PDF) passed")
+    finally:
+        os.unlink(pdf_path)
+    return True
+
+
+@pytest.mark.asyncio
+async def test_pdf_with_model_based_conversion_text_pdf_fallback():
+    """When model_based_conversion is on but PDF is text-based, use MarkItDown."""
+    print("\nTesting PDF with model-based conversion (text PDF fallback)...")
+
+    try:
+        from pypdf import PdfWriter
+        from pypdf import PageObject
+    except ImportError:
+        print("  (Skipped: pypdf not installed)")
+        return True
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+        pdf_path = f.name
+    try:
+        writer = PdfWriter()
+        page = PageObject.create_blank_page(None, 200, 200)
+        writer.add_page(page)
+        with open(pdf_path, "wb") as out:
+            writer.write(out)
+
+        import doc2markdown.server as server_module
+        with (
+            patch.object(server_module, "MODEL_BASED_CONVERSION", True),
+            patch(
+                "doc2markdown.deepseek_v2_ocr.is_image_pdf",
+                return_value=False,
+            ),
+        ):
+            result = await convert_to_markdown(pdf_path)
+        # Should have used MarkItDown (may produce empty or minimal content for blank page)
+        assert len(result) == 1
+        assert "Error" not in result[0].text or "empty" in result[0].text.lower()
+        print("✓ Model-based conversion (text PDF fallback) passed")
+    finally:
+        os.unlink(pdf_path)
+    return True
+
+
+@pytest.mark.asyncio
+async def test_model_based_conversion_ocr_raises_returns_error():
+    """When model_based is on and OCR raises, return error message."""
+    print("\nTesting model-based conversion when OCR raises...")
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+        f.write(b"%PDF-1.4\n")
+        pdf_path = f.name
+    try:
+        import doc2markdown.server as server_module
+        with (
+            patch.object(server_module, "MODEL_BASED_CONVERSION", True),
+            patch(
+                "doc2markdown.deepseek_v2_ocr.is_image_pdf",
+                return_value=True,
+            ),
+            patch(
+                "doc2markdown.deepseek_v2_ocr.pdf_to_markdown_with_ocr",
+                side_effect=RuntimeError("CUDA out of memory"),
+            ),
+        ):
+            result = await convert_to_markdown(pdf_path)
+        assert len(result) == 1
+        assert "Error" in result[0].text
+        assert "CUDA" in result[0].text or "model" in result[0].text.lower()
+        print("✓ OCR error handling passed")
+    finally:
+        os.unlink(pdf_path)
     return True
 
 
@@ -80,6 +188,9 @@ async def main():
         test_convert_text_file,
         test_file_not_found,
         test_empty_path,
+        test_pdf_with_model_based_conversion_image_pdf,
+        test_pdf_with_model_based_conversion_text_pdf_fallback,
+        test_model_based_conversion_ocr_raises_returns_error,
     ]
     
     passed = 0
