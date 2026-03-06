@@ -65,8 +65,23 @@ def is_image_pdf(pdf_path: str | Path) -> bool:
         return False
 
 
+# Patterns for stripping DeepSeek-OCR-2 ref/det bounding-box output (keep text only)
+_REF_DET_PATTERNS = (
+    re.compile(r"<\|ref\|>text<\|/ref\|>\s*"),
+    re.compile(r"<\|det\|>.*?<\|/det\|>\s*", re.DOTALL),
+)
+
+
+def _strip_ocr_ref_det(text: str) -> str:
+    """Remove <|ref|>text<|/ref|> and <|det|>[[...]]<|/det|> bounding-box markup from OCR output."""
+    for pat in _REF_DET_PATTERNS:
+        text = pat.sub("", text)
+    return text
+
+
 def sanitize_markdown(md: str) -> str:
     """Light cleanup; keep minimal to avoid damaging tables/math/layout."""
+    md = _strip_ocr_ref_det(md)
     md = md.replace("\r\n", "\n").replace("\r", "\n")
     md = re.sub(r"[ \t]+\n", "\n", md)
     md = re.sub(r"\n{3,}", "\n\n", md)
